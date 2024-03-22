@@ -20,7 +20,7 @@ internal class MyLineTransformSource : ILineTransformSource
         if (this.manager.DisplayedTextBlocks.ContainsKey(lineNumber)
          && this.manager.DisplayedTextBlocks[lineNumber].Count > 0)
         {
-            var spaceAboveLine = line.DefaultLineTransform.TopSpace + ((CSharpReadAssistPackage.Instance.Options.TopPadding + CSharpReadAssistPackage.Instance.Options.BottomPadding) * Constants.TextBlockSizeToFontScaleFactor);
+            var spaceAboveLine = line.DefaultLineTransform.TopSpace + ((CSharpReadAssistPackage.Instance.Options.TopPadding + CSharpReadAssistPackage.Instance.Options.BottomPadding));
             var spaceBelowLine = line.DefaultLineTransform.BottomSpace;
             lineTransform = new LineTransform(spaceAboveLine + ResourceAdornmentManager.TextSize, spaceBelowLine, 1.0);
         }

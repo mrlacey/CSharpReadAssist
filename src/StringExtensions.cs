@@ -39,42 +39,6 @@ public static class StringExtensions
         return -1;
     }
 
-    public static async Task<List<int>> GetAllIndexesAsync(this string source, params string[] values)
-    {
-        var result = new List<int>();
-
-        try
-        {
-            var startPos = 0;
-
-            while (startPos > -1 && startPos <= source.Length)
-            {
-                var index = await source.Substring(startPos).IndexOfAnyAsync(values);
-
-                if (index > -1)
-                {
-                    result.Add(startPos + index);
-                    startPos = startPos + index + 1;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            await OutputPane.Instance?.WriteAsync("Error in GetAllIndexesAsync");
-            await OutputPane.Instance?.WriteAsync(source);
-            await OutputPane.Instance?.WriteAsync(string.Join("|", values));
-            await OutputPane.Instance?.WriteAsync(ex.Message);
-            await OutputPane.Instance?.WriteAsync(ex.Source);
-            await OutputPane.Instance?.WriteAsync(ex.StackTrace);
-        }
-
-        return result;
-    }
-
     public static async Task<List<int>> GetAllIndexesCaseInsensitiveAsync(this string source, string searchTerm)
     {
         var result = new List<int>();
