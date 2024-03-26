@@ -119,7 +119,7 @@ public class ResourceAdornmentManager : IDisposable
                 this.DisplayedTextBlocks.Remove(lineNumber);
             }
 
-            var lineAdornments = await GetSubstringsToAdorn(lineText);
+            var lineAdornments = await GetSubstringsToAdornAsync(lineText);
 
             if (lineAdornments.Any())
             {
@@ -201,31 +201,32 @@ public class ResourceAdornmentManager : IDisposable
         }
     }
 
-    public static async Task<List<(int Index, string DisplayText)>> GetSubstringsToAdorn(string source)
+    public static async Task<List<(int Index, string DisplayText)>> GetSubstringsToAdornAsync(string source)
     {
         var result = new List<(int, string)>();
 
         try
         {
-            var andIndex = source.IndexOf("&& ");
+            const string AndTerm = "&& ";
+            const string OrTerm = "|| ";
+            const string NotTerm = "!";
 
-            if (andIndex > -1 && char.IsWhiteSpace(source[andIndex - 1]))
+            foreach (var (index, value) in await source.GetAllIndexesAsync(AndTerm, NotTerm, OrTerm))
             {
-                result.Add((andIndex, "AND"));
-            }
+                if (value == AndTerm && char.IsWhiteSpace(source[index - 1]))
+                {
+                    result.Add((index, "AND"));
+                }
 
-            var orIndex = source.IndexOf("|| ");
+                if (value == OrTerm && char.IsWhiteSpace(source[index - 1]))
+                {
+                    result.Add((index, "OR"));
+                }
 
-            if (orIndex > -1 && char.IsWhiteSpace(source[orIndex - 1]))
-            {
-                result.Add((orIndex, "OR"));
-            }
-
-            var notIndex = source.IndexOf("!");
-
-            if (notIndex > -1 && source[notIndex - 1] == '(' && char.IsLetterOrDigit(source[notIndex + 1]))
-            {
-                result.Add((notIndex, "NOT"));
+                if (value == NotTerm && source[index - 1] == '(' && char.IsLetterOrDigit(source[index + 1]))
+                {
+                    result.Add((index, "NOT"));
+                }
             }
         }
         catch (Exception ex)

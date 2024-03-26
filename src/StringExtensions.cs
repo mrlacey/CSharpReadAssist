@@ -120,7 +120,49 @@ public static class StringExtensions
         return (-1, string.Empty, false);
     }
 
-    public static async Task<List<(int index, string value)>> GetAllWholeWordIndexesAsync(this string source, params string[] values)
+    public static async Task<List<(int Index, string Value)>> GetAllIndexesAsync(this string source, params string[] values)
+    {
+        var result = new List<(int, string)>();
+
+        try
+        {
+            var startPos = 0;
+
+            var ignoreInRetries = new List<string>();
+
+            while (startPos > -1 && startPos <= source.Length)
+            {
+                var toSearchFor = values.Where(v => !ignoreInRetries.Contains(v)).ToArray();
+
+                var (index, value, _) = await source.Substring(startPos)
+                                                    .IndexOfAnyWithRetryAsync(toSearchFor);
+
+                if (index > -1)
+                {
+                    result.Add((startPos + index, value));
+
+                    startPos = startPos + index + 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await OutputPane.Instance?.WriteAsync("Error in GetAllWholeWordIndexesAsync");
+            await OutputPane.Instance?.WriteAsync(source);
+            await OutputPane.Instance?.WriteAsync(string.Join("|", values));
+            await OutputPane.Instance?.WriteAsync(ex.Message);
+            await OutputPane.Instance?.WriteAsync(ex.Source);
+            await OutputPane.Instance?.WriteAsync(ex.StackTrace);
+        }
+
+        return result;
+    }
+
+    public static async Task<List<(int Index, string Value)>> GetAllWholeWordIndexesAsync(this string source, params string[] values)
     {
         var result = new List<(int, string)>();
 
